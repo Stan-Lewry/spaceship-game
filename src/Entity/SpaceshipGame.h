@@ -16,6 +16,19 @@ private:
     RenderableComponent* panel2Rend;
 };
 
+class Bullet : public Entity {
+public:
+    Bullet(float x, float y);
+    virtual ~Bullet();
+protected:
+    void doUpdate() override;
+private:
+    WorldComponent* world;
+    RenderableComponent* rend;
+    PhysicsComponent* phys;
+};
+	
+
 class PlayerShip : public Entity {
 public:
     PlayerShip();
@@ -27,6 +40,8 @@ private:
     RenderableComponent* rend;
     InputComponent* input;
     PhysicsComponent* phys;
+
+    Bullet* bullet = nullptr;
 };
 
 class SpaceshipGame : public Entity {

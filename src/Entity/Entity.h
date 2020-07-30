@@ -10,6 +10,7 @@ public:
 
     void setUpdateInterval(double i) {updateInterval = i;}
     void update(double dTime){
+        delta = dTime;
         timer += dTime;
         if (timer >= updateInterval) {
             timer = 0;
@@ -18,7 +19,8 @@ public:
     }
 protected:
     virtual void doUpdate() = 0;
-private:
     double updateInterval;
     double timer = 0;
+    double delta;
+private:
 };

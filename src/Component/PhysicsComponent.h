@@ -5,6 +5,7 @@
 
 class PhysicsComponent : public Component {
 public:
+    PhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid, bool friction);
     PhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid);
     virtual ~PhysicsComponent();
     rect<float> getBoundingBox();
@@ -16,12 +17,17 @@ public:
     void clearCollisions();
     std::vector<PhysicsComponent*> getCurrnentCollisionList();
     bool isSolid();
+    bool hasFriction();
+    void setPhysicsBlackList(std::vector<std::string> physicsBlackList);
+    std::vector<std::string> getPhysicsBlackList();
 
 private:
 
     vect<float> velocity;
     vect<vect<float>> boundingBox;
     std::string name;
+    std::vector<std::string> physicsBlackList;
     std::vector<PhysicsComponent*> currentCollisionList;
     bool solid;
+    bool friction;
 };

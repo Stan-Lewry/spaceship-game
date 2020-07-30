@@ -1,11 +1,17 @@
 #include "PhysicsComponent.h"
 
 PhysicsComponent::PhysicsComponent(vect<vect<float>> _boundingBox, std::string _name, bool _solid)
+    : PhysicsComponent(_boundingBox, _name, _solid, true)
+{}
+
+PhysicsComponent::PhysicsComponent(vect<vect<float>> _boundingBox, std::string _name, bool _solid, bool _friction)
     : boundingBox(_boundingBox)
     , velocity({0, 0})
     , name(_name)
+    , physicsBlackList()
     , currentCollisionList()
     , solid(_solid)
+    , friction(_friction)
 {}
 
 PhysicsComponent::~PhysicsComponent() {
@@ -42,4 +48,17 @@ std::vector<PhysicsComponent*> PhysicsComponent::getCurrnentCollisionList() {
 
 bool PhysicsComponent::isSolid() {
     return solid;
+}
+
+bool PhysicsComponent::hasFriction() {
+    return friction;
+}
+
+void PhysicsComponent::setPhysicsBlackList(std::vector<std::string> _physicsBlackList) {
+    physicsBlackList = _physicsBlackList;
+}
+
+
+std::vector<std::string> PhysicsComponent::getPhysicsBlackList() {
+    return physicsBlackList;
 }

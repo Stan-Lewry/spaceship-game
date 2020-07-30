@@ -33,10 +33,31 @@ void Background::doUpdate() {
     panel2->setWorldX(panel2->getWorldX() - 0.05f);
 }
 
+Bullet::Bullet(float x, float y) {
+    world = GameEngine::createWorldComponent(x, y, 1.5, 0.5, 1);
+    rend = GameEngine::createRenderableComponent("bullet", true, world);
+    phys = GameEngine::createPhysicsComponent({{0, 0}, {3, 1}}, "bullet", false, false, world);
+    phys->setPhysicsBlackList({"player_ship"});
+    phys->setVelocity({1.5, 0});
+    GameEngine::registerEntity(this);
+}
+
+Bullet::~Bullet() {
+    GameEngine::deleteRenderableComponent(rend);
+    GameEngine::deletePhysicsComponent(phys);
+    GameEngine::deleteWorldComponent(world);
+    GameEngine::deRegisterEntity(this);
+}
+
+void Bullet::doUpdate(){
+
+}
+
 PlayerShip::PlayerShip() {
     world = GameEngine::createWorldComponent(-20, -10, 10, 10, 1);
     rend = GameEngine::createRenderableComponent("ship_normal", true, world);
-    phys = GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, "player_ship", true, world);
+    phys = GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, "player_ship", true, true, world);
+    phys->setPhysicsBlackList({"bullet"});
     input = GameEngine::createInputComponent({upArrow, downArrow, leftArrow, rightArrow, space});
 
     GameEngine::registerEntity(this);
@@ -51,6 +72,16 @@ PlayerShip::~PlayerShip() {
 }
 
 void PlayerShip::doUpdate() {
+    static constexpr double bulletUpdateInterval = 500;
+    static double bulletUpdateTimer = 0;
+    static bool canShoot = false;
+
+    bulletUpdateTimer += delta;
+    if (bulletUpdateTimer >= bulletUpdateInterval) {
+        bulletUpdateTimer = 0;
+        canShoot = true;
+    }
+
     vect<float> vel = {0, 0};
 
     std::string spriteId = "ship_normal";
@@ -68,6 +99,14 @@ void PlayerShip::doUpdate() {
     }
     if (input->getButtonState(rightArrow)) {
         vel.x = 1.0f;
+    }
+    if (input->getButtonState(space) && canShoot) {
+        if (bullet != nullptr) {
+                delete bullet;
+                bullet = nullptr;
+        }
+        bullet = new Bullet(world->getWorldX() + world->getWorldW(), world->getWorldY() + (world->getWorldH() / 2));
+        canShoot = false;
     }
 
     phys->setVelocity(vel);
@@ -88,8 +127,4 @@ SpaceshipGame::~SpaceshipGame() {
 }
 
 void SpaceshipGame::doUpdate() {
-    if (input->getButtonState(space) && playerShip != nullptr) {
-        delete playerShip;
-        playerShip = nullptr;
-    }
 }

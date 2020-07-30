@@ -26,8 +26,8 @@ InputComponent* GameEngine::createInputComponent(std::list<Button> buttons) {
     return ic;
 }
 
-PhysicsComponent* GameEngine::createPhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid, WorldComponent* world) {
-    PhysicsComponent* pc = new PhysicsComponent(boundingBox, name, solid);
+PhysicsComponent* GameEngine::createPhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid, bool friction, WorldComponent* world) {
+    PhysicsComponent* pc = new PhysicsComponent(boundingBox, name, solid, friction);
     instance->phys->registerPhysics(world, pc);
     instance->debugRenderer->registerDebugEntity(world, pc, red);
     return pc;

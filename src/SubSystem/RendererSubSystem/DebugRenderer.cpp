@@ -40,7 +40,7 @@ void DebugConsoleRenderer::drawConsole() {
 
 DebugRenderer::DebugRenderer(float x, float y, float w, float h, Camera* _cam, DebugInfo* _info)
     : SubSystem(0)
-    , debugEntities()
+    , debugComponents()
     , debugFont()
     , info(_info)
     , cam(_cam)
@@ -58,7 +58,17 @@ DebugRenderer::~DebugRenderer() {
 }
 
 void DebugRenderer::registerDebugEntity(WorldComponent* worldCompo, PhysicsComponent* physicsCompo, color c) {
-    debugEntities.push_back(std::make_pair(std::make_pair(worldCompo, physicsCompo), c));
+    debugComponents.push_back(std::make_pair(std::make_pair(worldCompo, physicsCompo), c));
+}
+
+void DebugRenderer::deRegisterDebugEntity(PhysicsComponent* physicsCompo) {
+    auto it = std::find_if(debugComponents.begin(), debugComponents.end(), 
+    [physicsCompo](const std::pair<std::pair<WorldComponent*, PhysicsComponent*>, color>& pair){
+        return pair.first.second == physicsCompo;
+    });
+    if (it != debugComponents.end()) {
+        debugComponents.erase(it);
+    }    
 }
 
 void DebugRenderer::doUpdate(double dTime) {
@@ -66,7 +76,7 @@ void DebugRenderer::doUpdate(double dTime) {
     int centerX = viewportX + (viewportW / 2);
     int centerY = viewportY + (viewportH / 2);
 
-    for (auto pair : debugEntities) {
+    for (auto pair : debugComponents) {
         rect<float> box = pair.first.second->getBoundingBox();
         box.x += pair.first.first->getWorldX();
         box.y += pair.first.first->getWorldY();

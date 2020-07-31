@@ -51,6 +51,7 @@ void GameEngine::deleteInputComponent(InputComponent* input) {
 
 void GameEngine::deletePhysicsComponent(PhysicsComponent* physics) {
     instance->phys->deRegisterPhysics(physics);
+    instance->debugRenderer->deRegisterDebugEntity(physics);
     delete physics;
 }
 

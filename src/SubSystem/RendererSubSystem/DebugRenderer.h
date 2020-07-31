@@ -36,6 +36,7 @@ public:
     virtual ~DebugRenderer();
 
     void registerDebugEntity(WorldComponent* worldCompo, PhysicsComponent* physicsCompo, color col);
+    void deRegisterDebugEntity(PhysicsComponent* physicsCompo);
 protected:
     void doUpdate(double dTime) override;
 
@@ -43,7 +44,7 @@ private:
     void drawDebugBox(SDL_Rect r);
     SDL_Rect drawDebugText(TTF_Font* f, const char* m, SDL_Color c, int x, int y);
 
-    std::list<std::pair<std::pair<WorldComponent*, PhysicsComponent*>, color>> debugEntities;
+    std::list<std::pair<std::pair<WorldComponent*, PhysicsComponent*>, color>> debugComponents;
 
     TTF_Font* debugFont;
     TTF_Font* debugFontSmall;

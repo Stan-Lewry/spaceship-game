@@ -50,7 +50,7 @@ OBJS = \
 	
 CC = g++
 
-COMPILER_FLAGS = -w -std=c++11
+COMPILER_FLAGS = -w -std=c++11 -g
 
 LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 

@@ -20,12 +20,16 @@ class Bullet : public Entity {
 public:
     Bullet(float x, float y);
     virtual ~Bullet();
+    bool isDead() const;
+    void setDead(bool d);
+    void setPos(vect<float> p);
 protected:
     void doUpdate() override;
 private:
     WorldComponent* world;
     RenderableComponent* rend;
     PhysicsComponent* phys;
+    bool dead;
 };
 	
 
@@ -36,12 +40,15 @@ public:
 protected:
     void doUpdate() override;
 private:
+    void createBullet();
+
     WorldComponent* world;
     RenderableComponent* rend;
     InputComponent* input;
     PhysicsComponent* phys;
+    std::vector<Bullet*> bulletList;
 
-    Bullet* bullet = nullptr;
+    std::vector<Bullet*> bulletPool;
 };
 
 class SpaceshipGame : public Entity {

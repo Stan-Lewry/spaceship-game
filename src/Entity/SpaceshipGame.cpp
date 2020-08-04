@@ -1,6 +1,6 @@
 #include "SpaceshipGame.h"
 
-static float startX = -32.0f;
+static constexpr float startX = -32.0f;
 
 Background::Background() {
     panel1 = GameEngine::createWorldComponent(startX, -24, 64, 48, 0);
@@ -40,6 +40,7 @@ Bullet::Bullet(float x, float y) {
     phys->setPhysicsBlackList({"player_ship"});
     phys->setVelocity({1.5, 0});
     GameEngine::registerEntity(this);
+    dead = false;
 }
 
 Bullet::~Bullet() {
@@ -50,17 +51,46 @@ Bullet::~Bullet() {
 }
 
 void Bullet::doUpdate(){
-
+    if (!dead) {
+        if (world->getWorldX() > 32.0f) {
+            dead = true;
+            world->setWorldX(-100);
+            world->setWorldY(-100);
+        } 
+    }
 }
 
-PlayerShip::PlayerShip() {
-    world = GameEngine::createWorldComponent(-20, -10, 10, 10, 1);
-    rend = GameEngine::createRenderableComponent("ship_normal", true, world);
-    phys = GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, "player_ship", true, true, world);
-    phys->setPhysicsBlackList({"bullet"});
-    input = GameEngine::createInputComponent({upArrow, downArrow, leftArrow, rightArrow, space});
+bool Bullet::isDead() const {
+    return dead;
+}
 
+void Bullet::setDead(bool d){
+    dead = d;
+}
+
+void Bullet::setPos(vect<float> pos) {
+    world->setWorldX(pos.x);
+    world->setWorldY(pos.y);
+}
+
+static constexpr int bulletPoolSize = 10;
+static int bulletIndex = 0;
+
+PlayerShip::PlayerShip()
+    : world(GameEngine::createWorldComponent(-20, -10, 10, 10, 1))
+    , rend(GameEngine::createRenderableComponent("ship_normal", true, world))
+    , phys(GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, "player_ship", true, true, world))
+    , input(GameEngine::createInputComponent({upArrow, downArrow, leftArrow, rightArrow, space}))
+    , bulletList()
+    , bulletPool() {
+    phys->setPhysicsBlackList({"bullet"});
     GameEngine::registerEntity(this);
+
+    for (int i = 0; i < bulletPoolSize; ++i) {
+        Bullet* b = new Bullet(-100, -100);
+        b->setDead(true);
+        bulletPool.push_back(b);
+    }
 }
 
 PlayerShip::~PlayerShip() {
@@ -72,7 +102,7 @@ PlayerShip::~PlayerShip() {
 }
 
 void PlayerShip::doUpdate() {
-    static constexpr double bulletUpdateInterval = 500;
+    static constexpr double bulletUpdateInterval = 100;
     static double bulletUpdateTimer = 0;
     static bool canShoot = false;
 
@@ -101,16 +131,19 @@ void PlayerShip::doUpdate() {
         vel.x = 1.0f;
     }
     if (input->getButtonState(space) && canShoot) {
-        if (bullet != nullptr) {
-                delete bullet;
-                bullet = nullptr;
-        }
-        bullet = new Bullet(world->getWorldX() + world->getWorldW(), world->getWorldY() + (world->getWorldH() / 2));
         canShoot = false;
+        createBullet();
     }
 
     phys->setVelocity(vel);
     rend->setTextureId(spriteId);
+}
+
+void PlayerShip::createBullet() {
+    Bullet* b = bulletPool.at(bulletIndex);
+    b->setPos({world->getWorldX() + world->getWorldW(), world->getWorldY() + (world->getWorldH() / 2)});
+    b->setDead(false);
+    (bulletIndex == bulletPoolSize - 1) ? bulletIndex = 0 : ++bulletIndex;
 }
 
 SpaceshipGame::SpaceshipGame() {

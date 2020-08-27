@@ -17,7 +17,7 @@ void SDEBUG(const char* format, Args... args) {
 
     printf("%s\n", out);
 
-    globalDebugStringList.push_back(std::string(out));
+    //globalDebugStringList.push_back(std::string(out));
 }
 
 template<typename... Args>

@@ -51,6 +51,18 @@ private:
     std::vector<Bullet*> bulletPool;
 };
 
+class Asteroid : public Entity {
+public:
+    Asteroid();
+    virtual ~Asteroid();
+protected:
+    void doUpdate() override;
+private:
+    WorldComponent* world;
+    RenderableComponent* rend;
+    PhysicsComponent* phys;
+};
+
 class SpaceshipGame : public Entity {
 public:
     SpaceshipGame();

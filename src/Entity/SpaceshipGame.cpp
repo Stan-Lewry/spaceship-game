@@ -2,6 +2,10 @@
 
 static constexpr float startX = -32.0f;
 
+static constexpr uint8_t shipPhysId = 1;
+static constexpr uint8_t bulletPhysId = 2;
+static constexpr uint8_t asteroidPhysId = 3;
+
 Background::Background() {
     panel1 = GameEngine::createWorldComponent(startX, -24, 64, 48, 0);
     panel1Rend = GameEngine::createRenderableComponent("stars", true, panel1);
@@ -36,8 +40,9 @@ void Background::doUpdate() {
 Bullet::Bullet(float x, float y) {
     world = GameEngine::createWorldComponent(x, y, 1.5, 0.5, 1);
     rend = GameEngine::createRenderableComponent("bullet", true, world);
-    phys = GameEngine::createPhysicsComponent({{0, 0}, {3, 1}}, "bullet", false, false, world);
-    phys->setPhysicsBlackList({"player_ship"});
+    phys = GameEngine::createPhysicsComponent({{0, 0}, {3, 1}}, bulletPhysId, false, false, world);
+    phys->blacklistPhysics(shipPhysId);
+    phys->blacklistPhysics(bulletPhysId);
     phys->setVelocity({1.5, 0});
     GameEngine::registerEntity(this);
     dead = false;
@@ -79,11 +84,13 @@ static int bulletIndex = 0;
 PlayerShip::PlayerShip()
     : world(GameEngine::createWorldComponent(-20, -10, 10, 10, 1))
     , rend(GameEngine::createRenderableComponent("ship_normal", true, world))
-    , phys(GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, "player_ship", true, true, world))
+    , phys(GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, shipPhysId, true, true, world))
     , input(GameEngine::createInputComponent({upArrow, downArrow, leftArrow, rightArrow, space}))
     , bulletList()
     , bulletPool() {
-    phys->setPhysicsBlackList({"bullet"});
+    
+    phys->blacklistPhysics(bulletPhysId);
+    
     GameEngine::registerEntity(this);
 
     for (int i = 0; i < bulletPoolSize; ++i) {
@@ -105,7 +112,7 @@ void PlayerShip::doUpdate() {
     static constexpr double bulletUpdateInterval = 100;
     static double bulletUpdateTimer = 0;
     static bool canShoot = false;
-
+    
     bulletUpdateTimer += delta;
     if (bulletUpdateTimer >= bulletUpdateInterval) {
         bulletUpdateTimer = 0;
@@ -115,7 +122,6 @@ void PlayerShip::doUpdate() {
     vect<float> vel = {0, 0};
 
     std::string spriteId = "ship_normal";
-
     if (input->getButtonState(upArrow)) {
         vel.y = -1.0f;
         spriteId = "ship_up";
@@ -144,6 +150,25 @@ void PlayerShip::createBullet() {
     b->setPos({world->getWorldX() + world->getWorldW(), world->getWorldY() + (world->getWorldH() / 2)});
     b->setDead(false);
     (bulletIndex == bulletPoolSize - 1) ? bulletIndex = 0 : ++bulletIndex;
+}
+
+Asteroid::Asteroid() {
+    world = GameEngine::createWorldComponent(screenW, 0, 10, 10, 2);
+    rend = GameEngine::createRenderableComponent("asteroid_1", true, world);
+    phys = GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, asteroidPhysId, false, false, world);
+
+    GameEngine::registerEntity(this);
+}
+    
+Asteroid::~Asteroid() {
+    GameEngine::deleteRenderableComponent(rend);
+    GameEngine::deletePhysicsComponent(phys);
+    GameEngine::deleteWorldComponent(world);
+    GameEngine::deRegisterEntity(this);
+}
+
+void Asteroid::doUpdate() {
+    
 }
 
 SpaceshipGame::SpaceshipGame() {

@@ -1,13 +1,14 @@
 #include "PhysicsComponent.h"
 
-PhysicsComponent::PhysicsComponent(vect<vect<float>> _boundingBox, std::string _name, bool _solid)
-    : PhysicsComponent(_boundingBox, _name, _solid, true)
+PhysicsComponent::PhysicsComponent(vect<vect<float>> _boundingBox, uint8_t _id, bool _solid)
+    : PhysicsComponent(_boundingBox, _id, _solid, true)
 {}
 
-PhysicsComponent::PhysicsComponent(vect<vect<float>> _boundingBox, std::string _name, bool _solid, bool _friction)
+PhysicsComponent::PhysicsComponent(vect<vect<float>> _boundingBox, uint8_t _id, bool _solid, bool _friction)
     : boundingBox(_boundingBox)
     , velocity({0, 0})
-    , name(_name)
+    , name("")
+    , id(_id)
     , physicsBlackList()
     , currentCollisionList()
     , solid(_solid)
@@ -34,6 +35,10 @@ std::string PhysicsComponent::getName() {
     return name;
 }
 
+uint8_t PhysicsComponent::getId() {
+    return id;
+}
+
 void PhysicsComponent::addCollision(PhysicsComponent* pc) {
     currentCollisionList.push_back(pc);
 }
@@ -54,11 +59,11 @@ bool PhysicsComponent::hasFriction() {
     return friction;
 }
 
-void PhysicsComponent::setPhysicsBlackList(std::vector<std::string> _physicsBlackList) {
-    physicsBlackList = _physicsBlackList;
+void PhysicsComponent::blacklistPhysics(uint8_t id) {
+    physicsBlackList.push_back(id);
 }
 
 
-std::vector<std::string> PhysicsComponent::getPhysicsBlackList() {
+std::vector<uint8_t> PhysicsComponent::getPhysicsBlackList() {
     return physicsBlackList;
 }

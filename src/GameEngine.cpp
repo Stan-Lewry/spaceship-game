@@ -26,8 +26,8 @@ InputComponent* GameEngine::createInputComponent(std::list<Button> buttons) {
     return ic;
 }
 
-PhysicsComponent* GameEngine::createPhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid, bool friction, WorldComponent* world) {
-    PhysicsComponent* pc = new PhysicsComponent(boundingBox, name, solid, friction);
+PhysicsComponent* GameEngine::createPhysicsComponent(vect<vect<float>> boundingBox, uint8_t id, bool solid, bool friction, WorldComponent* world) {
+    PhysicsComponent* pc = new PhysicsComponent(boundingBox, id, solid, friction);
     instance->phys->registerPhysics(world, pc);
     instance->debugRenderer->registerDebugEntity(world, pc, red);
     return pc;
@@ -83,6 +83,7 @@ GameEngine::GameEngine() {
     TextureManager* tm  = new TextureManager();
     tm->initializeResource("assets/background.st");
     tm->initializeResource("assets/sheet.st");
+    tm->initializeResource("assets/asteroids.st");
     renderer = new Renderer2D(tm, 0, 0, 640, 480, cam);
 
     debugInfo = new DebugInfo();

@@ -1,32 +1,38 @@
 #pragma once
 
+#include <string>
+
 #include "Component.h"
 #include "../Utils/Types.h"
 
 class PhysicsComponent : public Component {
 public:
-    PhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid, bool friction);
-    PhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid);
+    PhysicsComponent(vect<vect<float>> boundingBox, uint8_t id, bool solid, bool friction);
+    PhysicsComponent(vect<vect<float>> boundingBox, uint8_t id, bool solid);
     virtual ~PhysicsComponent();
-    rect<float> getBoundingBox();
-    
+
+    typedef std::vector<uint8_t> PhysicsIdVector;
+
+    rect<float> getBoundingBox();    
     vect<float> getVelocity();
     void setVelocity(vect<float> vel);
     std::string getName();
+    uint8_t getId();
     void addCollision(PhysicsComponent* pc);
     void clearCollisions();
     std::vector<PhysicsComponent*> getCurrnentCollisionList();
     bool isSolid();
     bool hasFriction();
-    void setPhysicsBlackList(std::vector<std::string> physicsBlackList);
-    std::vector<std::string> getPhysicsBlackList();
+    void blacklistPhysics(uint8_t id);
+    PhysicsIdVector getPhysicsBlackList();
 
 private:
 
     vect<float> velocity;
     vect<vect<float>> boundingBox;
     std::string name;
-    std::vector<std::string> physicsBlackList;
+    uint8_t id;
+    PhysicsIdVector physicsBlackList;
     std::vector<PhysicsComponent*> currentCollisionList;
     bool solid;
     bool friction;

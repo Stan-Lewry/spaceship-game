@@ -29,7 +29,7 @@ public:
     static WorldComponent* createWorldComponent(float x, float y, float w, float h, float z);
     static RenderableComponent* createRenderableComponent(std::string textureId, bool visible, WorldComponent* world);
     static InputComponent* createInputComponent(std::list<Button> buttons);
-    static PhysicsComponent* createPhysicsComponent(vect<vect<float>> boundingBox, std::string name, bool solid, bool friction, WorldComponent* world);
+    static PhysicsComponent* createPhysicsComponent(vect<vect<float>> boundingBox, uint8_t id, bool solid, bool friction, WorldComponent* world);
     static AnimationComponent* createAnimationComponent(std::vector<std::string> frames, double interval, bool loop, bool play, RenderableComponent* renderable);
     static void deleteRenderableComponent(RenderableComponent* rend);
     static void deleteInputComponent(InputComponent* input);

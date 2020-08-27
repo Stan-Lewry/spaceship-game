@@ -51,12 +51,12 @@ void PhysicsSubSystem::resolveCollisionsAABB(std::pair<WorldComponent*, PhysicsC
     i = {0, 0, 0, 0};
     vect<float> vel = entity.second->getVelocity();
  
-    for (auto entity2 : physicsComponents) {
-        if (entity2.second != entity.second) {
-            if (std::find(entity.second->getPhysicsBlackList().begin(), 
-                            entity.second->getPhysicsBlackList().end(), 
-                            entity2.second->getName()) == entity.second->getPhysicsBlackList().end()) {
-
+    
+    for (auto entity2 : physicsComponents) {    // for each entity
+        if (entity2.second != entity.second) {      // check its not the entity were resolving for
+            PhysicsComponent::PhysicsIdVector blacklist = entity.second->getPhysicsBlackList();
+            auto it = std::find(blacklist.begin(), blacklist.end(), entity2.second->getId());
+            if (it == blacklist.end()){                 // only proceed if entity2 is not in entity's blacklist
                 rb = {(entity2.second->getBoundingBox().x + entity2.first->getWorldX()) * 10,
                         (entity2.second->getBoundingBox().y + entity2.first->getWorldY()) * 10,
                         entity2.second->getBoundingBox().w * 10,

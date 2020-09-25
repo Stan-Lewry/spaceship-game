@@ -73,4 +73,5 @@ private:
     InputComponent* input;
     Background* background;
     PlayerShip* playerShip;
+    std::vector<Asteroid*> asteroidPool;
 };

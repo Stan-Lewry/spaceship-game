@@ -1,5 +1,9 @@
 #include "SpaceshipGame.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 static constexpr float startX = -32.0f;
 
 static constexpr uint8_t shipPhysId = 1;
@@ -43,6 +47,7 @@ Bullet::Bullet(float x, float y) {
     phys = GameEngine::createPhysicsComponent({{0, 0}, {3, 1}}, bulletPhysId, false, false, world);
     phys->blacklistPhysics(shipPhysId);
     phys->blacklistPhysics(bulletPhysId);
+    phys->blacklistPhysics(asteroidPhysId);
     phys->setVelocity({1.5, 0});
     GameEngine::registerEntity(this);
     dead = false;
@@ -78,7 +83,7 @@ void Bullet::setPos(vect<float> pos) {
     world->setWorldY(pos.y);
 }
 
-static constexpr int bulletPoolSize = 10;
+static constexpr int bulletPoolSize = 20;
 static int bulletIndex = 0;
 
 PlayerShip::PlayerShip()
@@ -90,7 +95,8 @@ PlayerShip::PlayerShip()
     , bulletPool() {
     
     phys->blacklistPhysics(bulletPhysId);
-    
+    phys->blacklistPhysics(asteroidPhysId);
+
     GameEngine::registerEntity(this);
 
     for (int i = 0; i < bulletPoolSize; ++i) {
@@ -109,7 +115,7 @@ PlayerShip::~PlayerShip() {
 }
 
 void PlayerShip::doUpdate() {
-    static constexpr double bulletUpdateInterval = 100;
+    static constexpr double bulletUpdateInterval = 60;
     static double bulletUpdateTimer = 0;
     static bool canShoot = false;
     
@@ -152,10 +158,31 @@ void PlayerShip::createBullet() {
     (bulletIndex == bulletPoolSize - 1) ? bulletIndex = 0 : ++bulletIndex;
 }
 
+static const int startPosNo = 8;
+static const int speedNo = 4;
+static const int spritesNo = 3;
+static const float startYPositions[startPosNo] = {-20.0f, -15.0f, -10.0f, -5.0f, 0.0f, 5.0f, 10.0f, 15.0f};
+static const float startXPositions[startPosNo] = {32.0f, 32.0f, 42.0f, 42.0f, 52.0f, 52.0f, 62.0f, 62.0f};
+static const float speeds[speedNo] = {-0.5f, -0.7f, -0.8f, -0.2f};
+static const std::string spriteIds[spritesNo] = {"asteroid_1", "asteroid_2", "asteroid_3"};
+
 Asteroid::Asteroid() {
-    world = GameEngine::createWorldComponent(screenW, 0, 10, 10, 2);
-    rend = GameEngine::createRenderableComponent("asteroid_1", true, world);
+    int randomI = rand() % startPosNo + 1;
+    float startY = startYPositions[randomI - 1];
+    randomI = rand() % startPosNo + 1;
+    float startX = startXPositions[randomI - 1];
+    randomI = rand() % speedNo + 1;
+    float speed = speeds[randomI - 1];
+    randomI = rand() % spritesNo + 1;
+    std::string spriteId = spriteIds[randomI - 1];
+
+    world = GameEngine::createWorldComponent(startX, startY, 10, 10, 2);
+    rend = GameEngine::createRenderableComponent(spriteId, true, world);
     phys = GameEngine::createPhysicsComponent({{0, 0}, {10, 10}}, asteroidPhysId, false, false, world);
+    phys->setVelocity({speed, 0});
+    phys->blacklistPhysics(asteroidPhysId);
+    phys->blacklistPhysics(bulletPhysId);
+    phys->blacklistPhysics(shipPhysId);
 
     GameEngine::registerEntity(this);
 }
@@ -168,14 +195,37 @@ Asteroid::~Asteroid() {
 }
 
 void Asteroid::doUpdate() {
-    
+    if (world->getWorldX() < -42) {
+        int randomI = rand() % startPosNo + 1;
+        float startY = startYPositions[randomI - 1];
+        randomI = rand() % startPosNo + 1;
+        float startX = startXPositions[randomI - 1];
+        randomI = rand() % speedNo + 1;
+        float speed = speeds[randomI - 1];
+        randomI = rand() % spritesNo + 1;
+        std::string spriteId = spriteIds[randomI - 1];
+
+        world->setWorldX(startX);
+        world->setWorldY(startY);
+        phys->setVelocity({speed, 0});
+        rend->setTextureId(spriteId);
+    }
 }
+
+static const int asteroidPoolCount = 4;
 
 SpaceshipGame::SpaceshipGame() {
     background = new Background();
     playerShip = new PlayerShip();
     input = GameEngine::createInputComponent({space});
     GameEngine::registerEntity(this);
+
+    srand(time(NULL));
+
+    for (int i = 0; i < asteroidPoolCount; ++i) {
+        Asteroid* a = new Asteroid();
+        asteroidPool.push_back(a);
+    }
 }
 
 SpaceshipGame::~SpaceshipGame() {
